@@ -1,8 +1,6 @@
 # Richieste
 
-index
-
-Buona domanda. Il motivo è una convenzione storica del web che GitHub Pages eredita.
+PERCHè CHIAMARE IL FILE INDEX.HTML ???
 
 Quando apri un sito tipo https://eliaventurini.github.io/Richieste/, stai chiedendo al server "dammi la pagina principale di questa cartella". Ma tu non hai specificato quale file aprire — hai solo indicato la cartella. Il server deve quindi sapere quale file servire di default.
 
