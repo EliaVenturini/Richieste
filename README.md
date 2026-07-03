@@ -10,4 +10,4 @@ La regola, vecchia di decenni e usata da praticamente tutti i web server del mon
 
 Quindi quando il tuo file si chiamava richiesta_jonny_invaders.html, il server non lo trovava cercando index.html, e ripiegava sul README mostrando quella pagina bianca. Rinominandolo index.html gli hai detto "ecco, questa è la porta d'ingresso", e ha funzionato.
 
-Piccola curiosità: se avessi voluto tenere il nome originale, avresti potuto comunque aprirlo scrivendo l'URL completo https://eliaventurini.github.io/Richieste/richiesta_jonny_invaders.html — funziona, ma è scomodo da condividere. index.html ti permette di avere l'URL pulito senza nome file in fondo.
+Piccola curiosità: se avessi voluto tenere il nome originale, avrei potuto comunque aprirlo scrivendo l'URL completo https://eliaventurini.github.io/Richieste/richiesta_jonny_invaders.html — funziona, ma è scomodo da condividere. index.html mi permette di avere l'URL pulito senza nome file in fondo.
