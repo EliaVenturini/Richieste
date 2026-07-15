@@ -175,13 +175,13 @@
 
   // ── Roulette ──────────────────────────────────────────────────
   var SLOTS = 16;
-  var NO_IDX = 7;          // l'unico slot rosso
+  var YES_IDX = 0;         // l'unico slot verde, è truccato per uscire sempre
   var sliceAngle = (2 * Math.PI) / SLOTS;
   var currentAngle = 0;    // angolo attuale della ruota
   var spinning = false;
 
-  function sliceColor(i) { return i === NO_IDX ? '#E24B4A' : '#1D9E75'; }
-  function sliceLabel(i) { return i === NO_IDX ? 'No' : 'Sì'; }
+  function sliceColor(i) { return i === YES_IDX ? '#1D9E75' : '#E24B4A'; }
+  function sliceLabel(i) { return i === YES_IDX ? 'Sì' : 'No'; }
 
   function drawWheel(angle) {
     var canvas = document.getElementById('wheel');
@@ -230,7 +230,7 @@
     document.getElementById('spinBtn').disabled = true;
     document.getElementById('resultLabel').innerHTML = '&nbsp;';
 
-    var winSlot = (NO_IDX + 1 + Math.floor(Math.random() * (SLOTS - 1))) % SLOTS;
+    var winSlot = YES_IDX;
 
     var finalAngle = -(winSlot * sliceAngle + sliceAngle / 2);
     var extraSpins = (6 + Math.floor(Math.random() * 4)) * 2 * Math.PI;
@@ -260,12 +260,11 @@
     requestAnimationFrame(animate);
   };
 
-  function onResult(slot) {
-    var isYes = slot !== NO_IDX;
+  function onResult() {
     var lbl = document.getElementById('resultLabel');
     var hint = document.getElementById('continueHint');
-    pendingResult = isYes ? 3 : 4;
-    lbl.textContent = isYes ? '🎉 È uscito Sì!' : '😱 È uscito No!';
+    pendingResult = 3;
+    lbl.textContent = '🎉 È uscito Sì!';
     hint.textContent = 'tocca per continuare';
     awaitingAdvance = true;
   }
