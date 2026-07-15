@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>Invito Sushi 🍣</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    background: #F1EFE8;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+  .card {
+    width: 100%;
+    max-width: 420px;
+    background: #FFFFFF;
+    border-radius: 20px;
+    border: 2px solid #2C2C2A;
+    box-shadow: 0 4px 0 #2C2C2A;
+    padding: 28px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .dots { display: flex; gap: 6px; margin-bottom: 24px; }
+  .dot { height: 6px; flex: 1; border-radius: 3px; background: #D3D1C7; transition: background 0.3s; }
+  .dot.active { background: #2C2C2A; }
+  .stage { position: relative; min-height: 280px; cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent; }
+  .screen { display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; min-height: 280px; border-radius: 16px; padding: 24px 16px; border: 2px solid; }
+  .screen.active { display: flex; }
+  .icon-circle { width: 64px; height: 64px; border-radius: 50%; background: #FFFFFF; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; font-size: 30px; border: 2px solid; }
+  .eyebrow { font-size: 13px; font-weight: 700; margin-bottom: 8px; opacity: 0.8; }
+  .title { font-size: 19px; font-weight: 700; margin-bottom: 4px; }
+  .subtitle { font-size: 15px; }
+  .big { font-size: 26px; font-weight: 700; margin-top: 10px; }
+  .hint { font-size: 13px; margin-top: 28px; opacity: 0.6; }
+  .notice {
+    font-size: 14px;
+    font-weight: 700;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 2px dashed currentColor;
+    background: rgba(255,255,255,0.5);
+    margin: 4px 0 16px;
+  }
+  .c-purple { background: #EEEDFE; border-color: #7F77DD; color: #26215C; }
+  .c-purple .icon-circle { border-color: #7F77DD; color: #534AB7; }
+  .c-teal { background: #E1F5EE; border-color: #1D9E75; color: #04342C; }
+  .c-teal .icon-circle { border-color: #1D9E75; color: #0F6E56; }
+  .c-coral { background: #FAECE7; border-color: #D85A30; color: #4A1B0C; }
+  .c-coral .icon-circle { border-color: #D85A30; color: #993C1D; }
+  .c-amber { background: #FAEEDA; border-color: #BA7517; color: #412402; }
+
+  /* Roulette */
+  .roulette-wrap { display: flex; flex-direction: column; align-items: center; width: 100%; }
+  .wheel-container { position: relative; width: 240px; height: 240px; margin: 0 auto 8px; }
+  canvas#wheel { border-radius: 50%; border: 3px solid #2C2C2A; box-shadow: 0 3px 0 #2C2C2A; display: block; }
+  .pointer {
+    position: absolute;
+    top: -16px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 22px solid #2C2C2A;
+    z-index: 10;
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.25));
+  }
+  .spin-btn {
+    font-size: 16px; font-weight: 700; padding: 12px 36px;
+    border-radius: 12px; border: 2px solid #2C2C2A;
+    cursor: pointer; box-shadow: 0 3px 0 #2C2C2A;
+    background: #1D9E75; color: #FFF;
+    transition: transform 0.08s;
+    margin-top: 10px;
+  }
+  .spin-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #2C2C2A; }
+  .spin-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: 0 3px 0 #2C2C2A; }
+  .result-label { font-size: 14px; font-weight: 700; margin-top: 10px; min-height: 20px; }
+
+  .confetti { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; overflow: hidden; }
+  .confetti span { position: absolute; top: -20px; font-size: 20px; animation: fall 1.6s ease-in forwards; }
+  @keyframes fall { to { transform: translateY(480px) rotate(360deg); opacity: 0; } }
+</style>
+</head>
+<body>
+<div class="card" id="card">
+  <h2 class="sr-only">Invito a pranzo sushi</h2>
+  <div class="dots">
+    <div class="dot active" id="dot-0"></div>
+    <div class="dot" id="dot-1"></div>
+  </div>
+  <div class="stage" id="stage">
+
+    <div class="screen c-purple active" id="screen-0">
+      <div class="icon-circle">&#127871;</div>
+      <p class="title">Ciao!</p>
+      <p class="subtitle">Ho una proposta per te</p>
+      <p class="hint">tocca per continuare</p>
+    </div>
+
+    <div class="screen c-teal" id="screen-1">
+      <div class="icon-circle">&#127843;</div>
+      <p class="eyebrow">La proposta</p>
+      <p class="title">Pranzo di sushi sabato?</p>
+      <p class="big">13:00</p>
+    </div>
+    <div class="screen c-amber" id="screen-2" style="cursor:default;">
+      <p class="eyebrow">Verdetto finale</p>
+      <p class="title" style="margin-bottom:12px;">Lascia decidere alla roulette</p>
+      <p class="notice">📸 Fai uno screenshot del risultato per validare la risposta!</p>
+      <div class="roulette-wrap">
+        <div class="wheel-container">
+          <div class="pointer"></div>
+          <canvas id="wheel" width="240" height="240"></canvas>
+        </div>
+        <button class="spin-btn" id="spinBtn" onclick="startSpin()">🎰 Gira!</button>
+        <p class="result-label" id="resultLabel">&nbsp;</p>
+      </div>
+    </div>
+
+    <div class="screen c-teal" id="screen-3">
+      <div class="icon-circle">&#127843;</div>
+      <p class="title">Confermato!</p>
+      <p class="subtitle">Ci vediamo sabato per il sushi 🍣🎉</p>
+    </div>
+
+    <div class="screen c-coral" id="screen-4">
+      <div class="icon-circle">😭</div>
+      <p class="title">Nooo!</p>
+      <p class="subtitle">Vabbè... sarà per la prossima volta 🥺</p>
+      <p class="notice">Ma se hai comunque piacere a vederci, l'invito resta valido! 😊</p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function() {
+  var current = 0;
+  var stage = document.getElementById('stage');
+
+  function render() {
+    for (var i = 0; i < 5; i++) {
+      var s = document.getElementById('screen-' + i);
+      if (s) s.classList.toggle('active', i === current);
+    }
+    for (var d = 0; d < 2; d++) {
+      document.getElementById('dot-' + d).classList.toggle('active', d <= Math.min(current, 1));
+    }
+  }
+
+  stage.addEventListener('click', function() {
+    if (current >= 2) return;
+    current++;
+    render();
+    if (current === 2) initWheel();
+  });
+
+  // ── Roulette ──────────────────────────────────────────────────
+  var SLOTS = 16;
+  var NO_IDX = 7;          // l'unico slot rosso
+  var sliceAngle = (2 * Math.PI) / SLOTS;
+  var currentAngle = 0;    // angolo attuale della ruota
+  var spinning = false;
+
+  function sliceColor(i) { return i === NO_IDX ? '#E24B4A' : '#1D9E75'; }
+  function sliceLabel(i) { return i === NO_IDX ? 'No' : 'Sì'; }
+
+  function drawWheel(angle) {
+    var canvas = document.getElementById('wheel');
+    var ctx = canvas.getContext('2d');
+    var cx = 120, cy = 120, r = 116;
+    ctx.clearRect(0, 0, 240, 240);
+
+    for (var i = 0; i < SLOTS; i++) {
+      var start = angle + i * sliceAngle - Math.PI / 2;
+      var end = start + sliceAngle;
+
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, r, start, end);
+      ctx.closePath();
+      ctx.fillStyle = sliceColor(i);
+      ctx.fill();
+      ctx.strokeStyle = '#FFFFFF';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(start + sliceAngle / 2);
+      ctx.textAlign = 'right';
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = 'bold 13px -apple-system, Segoe UI, sans-serif';
+      ctx.fillText(sliceLabel(i), r - 8, 5);
+      ctx.restore();
+    }
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, 16, 0, 2 * Math.PI);
+    ctx.fillStyle = '#2C2C2A';
+    ctx.fill();
+  }
+
+  function initWheel() {
+    currentAngle = 0;
+    drawWheel(currentAngle);
+  }
+
+  window.startSpin = function() {
+    if (spinning) return;
+    spinning = true;
+    document.getElementById('spinBtn').disabled = true;
+    document.getElementById('resultLabel').innerHTML = '&nbsp;';
+
+    var winSlot = (NO_IDX + 1 + Math.floor(Math.random() * (SLOTS - 1))) % SLOTS;
+
+    var finalAngle = -(winSlot * sliceAngle + sliceAngle / 2);
+    var extraSpins = (6 + Math.floor(Math.random() * 4)) * 2 * Math.PI;
+    var targetAngle = finalAngle + extraSpins;
+
+    var duration = 4500;
+    var startAngle = currentAngle;
+    var startTime = null;
+
+    function easeOut(t) { return 1 - Math.pow(1 - t, 4); }
+
+    function animate(ts) {
+      if (!startTime) startTime = ts;
+      var t = Math.min((ts - startTime) / duration, 1);
+      currentAngle = startAngle + (targetAngle - startAngle) * easeOut(t);
+      drawWheel(currentAngle);
+      if (t < 1) {
+        requestAnimationFrame(animate);
+      } else {
+        currentAngle = finalAngle;
+        drawWheel(currentAngle);
+        spinning = false;
+        onResult(winSlot);
+      }
+    }
+
+    requestAnimationFrame(animate);
+  };
+
+  function onResult(slot) {
+    var isYes = slot !== NO_IDX;
+    var lbl = document.getElementById('resultLabel');
+    if (isYes) {
+      lbl.textContent = '🎉 È uscito Sì!';
+      setTimeout(function() { current = 3; render(); burstConfetti(); }, 900);
+    } else {
+      lbl.textContent = '😱 È uscito No!';
+      setTimeout(function() { current = 4; render(); }, 900);
+    }
+  }
+
+  function burstConfetti() {
+    var card = document.getElementById('card');
+    var layer = document.createElement('div');
+    layer.className = 'confetti';
+    card.appendChild(layer);
+    var emojis = ['🍣','✨','🎊','🍱'];
+    for (var i = 0; i < 20; i++) {
+      var s = document.createElement('span');
+      s.textContent = emojis[i % emojis.length];
+      s.style.left = (Math.random() * 100) + '%';
+      s.style.animationDelay = (Math.random() * 0.4) + 's';
+      layer.appendChild(s);
+    }
+    setTimeout(function() { layer.remove(); }, 2200);
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>
