@@ -119,7 +119,7 @@
           <div class="pointer"></div>
           <canvas id="wheel" width="240" height="240"></canvas>
         </div>
-        <button class="spin-btn" id="spinBtn" onclick="startSpin()">🎰 Gira!</button>
+        <button class="spin-btn" id="spinBtn" onclick="startSpin(event)">🎰 Gira!</button>
         <p class="result-label" id="resultLabel">&nbsp;</p>
         <p class="hint" id="continueHint" style="margin-top:8px;">&nbsp;</p>
       </div>
@@ -224,11 +224,14 @@
     drawWheel(currentAngle);
   }
 
-  window.startSpin = function() {
+  window.startSpin = function(e) {
+    if (e) e.stopPropagation();
     if (spinning) return;
     spinning = true;
     document.getElementById('spinBtn').disabled = true;
     document.getElementById('resultLabel').innerHTML = '&nbsp;';
+    document.getElementById('continueHint').innerHTML = '&nbsp;';
+    awaitingAdvance = false;
 
     var winSlot = YES_IDX;
 
@@ -253,6 +256,9 @@
         currentAngle = finalAngle;
         drawWheel(currentAngle);
         spinning = false;
+        var btn = document.getElementById('spinBtn');
+        btn.disabled = false;
+        btn.textContent = '🎰 Gira ancora!';
         onResult(winSlot);
       }
     }
