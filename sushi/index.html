@@ -121,6 +121,7 @@
         </div>
         <button class="spin-btn" id="spinBtn" onclick="startSpin()">🎰 Gira!</button>
         <p class="result-label" id="resultLabel">&nbsp;</p>
+        <p class="hint" id="continueHint" style="margin-top:8px;">&nbsp;</p>
       </div>
     </div>
 
@@ -144,6 +145,8 @@
 (function() {
   var current = 0;
   var stage = document.getElementById('stage');
+  var awaitingAdvance = false;
+  var pendingResult = null;
 
   function render() {
     for (var i = 0; i < 5; i++) {
@@ -156,10 +159,18 @@
   }
 
   stage.addEventListener('click', function() {
-    if (current >= 2) return;
-    current++;
-    render();
-    if (current === 2) initWheel();
+    if (current < 2) {
+      current++;
+      render();
+      if (current === 2) initWheel();
+      return;
+    }
+    if (current === 2 && awaitingAdvance) {
+      awaitingAdvance = false;
+      current = pendingResult;
+      render();
+      if (current === 3) burstConfetti();
+    }
   });
 
   // ── Roulette ──────────────────────────────────────────────────
@@ -252,13 +263,11 @@
   function onResult(slot) {
     var isYes = slot !== NO_IDX;
     var lbl = document.getElementById('resultLabel');
-    if (isYes) {
-      lbl.textContent = '🎉 È uscito Sì!';
-      setTimeout(function() { current = 3; render(); burstConfetti(); }, 900);
-    } else {
-      lbl.textContent = '😱 È uscito No!';
-      setTimeout(function() { current = 4; render(); }, 900);
-    }
+    var hint = document.getElementById('continueHint');
+    pendingResult = isYes ? 3 : 4;
+    lbl.textContent = isYes ? '🎉 È uscito Sì!' : '😱 È uscito No!';
+    hint.textContent = 'tocca per continuare';
+    awaitingAdvance = true;
   }
 
   function burstConfetti() {
